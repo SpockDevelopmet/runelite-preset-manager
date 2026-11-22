@@ -1,24 +1,51 @@
-# RuneLite Selective Preset Manager
+# Preset Manager
 
-Source project for a selective RuneLite configuration preset manager.
+A RuneLite plugin for switching between activity-specific configuration presets without replacing your everyday setup.
 
-**Development status:** Not compiled or validated against RuneLite yet; not approved for Plugin Hub. Do not represent this commit as a production release.
+The idea came from bossing: some encounters call for a very different collection of overlays and alerts, but those settings get in the way everywhere else. Preset Manager aims to make those changes reversible and easy to find.
 
-## Current functionality
-- Named and tagged presets with explicit configuration keys
-- Apply only settings included in a preset
-- Persist recovery snapshots before modifying settings
-- Restore previous values, including after a client restart
-- JSON import/export with validation and confirmation
+## How it works
 
-## Known limitations
-- Configuration keys are manually entered; plugin discovery is not implemented.
-- Does not enable or disable other plugins.
-- Some plugins require a restart for changed configuration to take effect.
-- Never export or share private configuration data such as tokens or credentials.
-- The Gradle dependency uses latest.release and needs to be pinned before release.
-- This commit has not been build-tested. A Gradle wrapper and tests are still required.
+Create a preset, give it a name and tag, then add the configuration entries you want it to control. You can enter a value or capture the current value of an entry. Activating a preset saves the previous values before applying the new ones. Use **Restore previous settings** when you're done.
 
-## Development
-Run `gradle test` and `gradle build` using Java 11+ and Gradle.
-Review Plugin Hub rules and RuneLite public APIs before submission.
+Only the entries in that preset are changed. Other RuneLite settings are left alone.
+
+For now, configuration groups and keys must be entered manually. This is an early source implementation, not a published Plugin Hub release.
+
+## What's in the repository
+
+- Sidebar panel for creating, selecting and deleting presets
+- Names and tags for organizing presets
+- Capture current configuration value for an existing entry
+- Selective apply and restore
+- Persistent recovery data across client restarts
+- JSON import and export
+
+## Limitations
+
+This plugin does **not** enable or disable other plugins. It changes configuration values only. RuneLite does not guarantee that every plugin reacts immediately to configuration changes, and some may need a restart.
+
+Import files can contain arbitrary configuration values. Only import files you trust, and check exported files before sharing them. They may contain sensitive settings.
+
+If recovery data is damaged, the plugin blocks activation rather than overwriting the recovery snapshot. Back up your RuneLite settings before attempting manual recovery.
+
+## Building
+
+The project uses Java and Gradle. From the repository root:
+
+```sh
+gradle test
+gradle build
+```
+
+A Gradle wrapper has not yet been committed. The RuneLite dependency currently uses `latest.release`; pin it to a tested version before a public release.
+
+## Development status
+
+The implementation is still under development. Compilation, in-client testing, compatibility checks and Plugin Hub review have not been completed. See the Actions tab for automated build results when available.
+
+Next priorities are configuration discovery, safer preset editing, automated tests and a review of Plugin Hub API restrictions.
+
+## License
+
+No license has been selected yet. All rights reserved until a license is added.
