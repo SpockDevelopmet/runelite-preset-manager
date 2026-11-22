@@ -54,6 +54,7 @@ public class PresetManagerPlugin extends Plugin {
     private List<Preset> presets = new ArrayList<>();
     private Map<String, String> recovery;
     private String active;
+    private boolean recoveryCorrupt;
     private NavigationButton navigation;
     private ManagerPanel panel;
 
@@ -78,7 +79,8 @@ public class PresetManagerPlugin extends Plugin {
                 active = config.getConfiguration(GROUP, ACTIVE);
             } catch (RuntimeException ex) {
                 // Block new activations if recovery data is damaged.
-                recovery = new LinkedHashMap<>();
+                recovery = null;
+                recoveryCorrupt = true;
                 active = "Recovery needs attention";
             }
         }
@@ -141,6 +143,7 @@ public class PresetManagerPlugin extends Plugin {
     private void activate(Preset preset) {
         validatePreset(preset);
         if (preset.settings.isEmpty()) throw new IllegalArgumentException("Preset has no settings");
+        if (recoveryCorrupt) throw new IllegalStateException("Recovery snapshot is damaged. Back up your RuneLite configuration before changing anything.");
         if (recovery != null) throw new IllegalStateException("Restore previous settings first");
         Map<String, String> snapshot = new LinkedHashMap<>();
         for (Setting s : preset.settings)
@@ -163,6 +166,7 @@ public class PresetManagerPlugin extends Plugin {
     }
 
     private void restore() {
+        if (recoveryCorrupt) throw new IllegalStateException("Recovery snapshot is damaged; refusing to discard it");
         if (recovery == null) return;
         for (Map.Entry<String, String> entry : recovery.entrySet()) {
             String[] parts = splitKey(entry.getKey());
@@ -263,6 +267,22 @@ public class PresetManagerPlugin extends Plugin {
                 catch (RuntimeException ex) { p.settings.remove(setting); error(ex.getMessage()); }
             });
             controls.add(add);
+            JButton capture = new JButton("Capture current value");
+            capture.addActionListener(e -> {
+                Preset p = (Preset) picker.getSelectedItem();
+                if (p == null || p.settings.isEmpty()) return;
+                Object chosen = JOptionPane.showInputDialog(this, "Capture the current RuneLite value for:",
+                    "Capture setting", JOptionPane.PLAIN_MESSAGE, null, p.settings.toArray(), null);
+                if (!(chosen instanceof Setting)) return;
+                Setting setting = (Setting) chosen;
+                String current = config.getConfiguration(setting.group, setting.key);
+                if (current == null && JOptionPane.showConfirmDialog(this,
+                    "This setting is currently unset. Save an unset value?",
+                    "Capture", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+                setting.value = current;
+                persist();
+            });
+            controls.add(capture);
             JButton removeSetting = new JButton("Remove saved setting");
             removeSetting.addActionListener(e -> {
                 Preset p = (Preset) picker.getSelectedItem();
@@ -314,7 +334,7 @@ public class PresetManagerPlugin extends Plugin {
             refreshStatus();
         }
         private void refreshStatus() {
-            status.setText(recovery == null ? "No preset active" : "Recovery: " + active);
+            status.setText(recoveryCorrupt ? "Recovery damaged - activation blocked" : recovery == null ? "No preset active" : "Active: " + active);
         }
         private void error(String message) {
             JOptionPane.showMessageDialog(this, message, "Preset Manager", JOptionPane.ERROR_MESSAGE);
