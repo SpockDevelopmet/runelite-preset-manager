@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.PluginPanel;
@@ -53,6 +54,7 @@ public class PresetManagerPlugin extends Plugin {
     private final Type recoveryType = new TypeToken<Map<String, String>>() {}.getType();
     @Inject private ConfigManager config;
     @Inject private ClientToolbar toolbar;
+    @Inject private PluginManager pluginManager;
     private List<Preset> presets = new ArrayList<>();
     private Map<String, String> recovery;
     private String active;
@@ -251,6 +253,7 @@ public class PresetManagerPlugin extends Plugin {
             super(false);
             setLayout(new BorderLayout(6, 6));
             JPanel controls = new JPanel(new GridLayout(0, 1, 4, 4));
+            SidebarStyle.apply(this);
             controls.add(new JLabel("SELECTIVE PRESETS"));
             presetSearch.setToolTipText("Filter your saved presets by name or tag");
             presetSearch.putClientProperty("JTextField.placeholderText", "Search my presets");
@@ -457,6 +460,7 @@ public class PresetManagerPlugin extends Plugin {
             javax.swing.JTabbedPane tabs = new javax.swing.JTabbedPane();
             tabs.addTab("My Presets", new JScrollPane(controls));
             tabs.addTab("Boss Library", new JScrollPane(encounterControls));
+            tabs.setFocusable(false);
             add(tabs, BorderLayout.CENTER);
             refreshRecommendations();
             refresh();
@@ -510,6 +514,18 @@ public class PresetManagerPlugin extends Plugin {
                     JLabel description = new JLabel("<html><b>" + recommendation.name
                         + "</b><br>" + recommendation.description + "</html>");
                     row.add(description, BorderLayout.CENTER);
+                    boolean available = false;
+                    for (Plugin candidate : pluginManager.getPlugins()) {
+                        PluginDescriptor descriptor = candidate.getClass().getAnnotation(PluginDescriptor.class);
+                        if (descriptor != null && descriptor.name().equalsIgnoreCase(recommendation.name)) {
+                            available = true;
+                            break;
+                        }
+                    }
+                    JLabel detection = new JLabel(available ? "Available in client" : "Not detected in client");
+                    detection.setForeground(available ? new java.awt.Color(113, 190, 150)
+                        : new java.awt.Color(209, 171, 108));
+                    row.add(detection, BorderLayout.NORTH);
                     JButton dismiss = new JButton("Not for me");
                     dismiss.setToolTipText("Hide this suggestion for this encounter");
                     dismiss.addActionListener(e -> {
