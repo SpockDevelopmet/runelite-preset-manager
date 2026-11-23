@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -50,7 +49,32 @@ final class RecommendationCatalog {
                 "Makes tile movement easier to track.", null)),
         new Encounter("colosseum", "Fortis Colosseum", "PvM",
             new Recommendation("tile-indicators", "Tile Indicators",
-                "Makes tile movement easier to track.", null))
+                "Makes tile movement easier to track.", null)),
+        new Encounter("chambers-of-xeric", "Chambers of Xeric", "Raids",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null),
+            new Recommendation("ground-markers", "Ground Markers",
+                "Mark useful positions during encounters.", null)),
+        new Encounter("tombs-of-amascut", "Tombs of Amascut", "Raids",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null),
+            new Recommendation("ground-markers", "Ground Markers",
+                "Mark useful positions during encounters.", null)),
+        new Encounter("doom-of-mokhaiotl", "Doom of Mokhaiotl", "PvM",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null)),
+        new Encounter("zulrah", "Zulrah", "PvM",
+            new Recommendation("ground-markers", "Ground Markers",
+                "Mark useful positions during the encounter.", null)),
+        new Encounter("vorkath", "Vorkath", "PvM",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null)),
+        new Encounter("gauntlet", "The Gauntlet", "PvM",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null)),
+        new Encounter("nightmare", "The Nightmare", "PvM",
+            new Recommendation("tile-indicators", "Tile Indicators",
+                "Highlights movement and tile positioning.", null))
     ));
 
     static List<Encounter> encounters() { return ENCOUNTERS; }
