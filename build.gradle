@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'application'
 }
 repositories {
     mavenLocal()
@@ -20,12 +19,13 @@ version = '1.0.0'
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release.set(17) }
 
 // Development-only launcher: run with 'gradle run' to load this plugin in RuneLite.
-application {
-    mainClass = 'com.presetmanager.PresetManagerDevelopmentLauncher'
-}
 sourceSets {
     main { resources { srcDir '.'; include 'runelite-plugin.properties' } }
 }
-configurations {
-    runtimeClasspath.extendsFrom(testRuntimeClasspath)
+tasks.register('runDev', JavaExec) {
+    group = 'application'
+    description = 'Launch RuneLite with Preset Manager loaded for development'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.presetmanager.PresetManagerDevelopmentLauncher'
+    workingDir = project.projectDir
 }
