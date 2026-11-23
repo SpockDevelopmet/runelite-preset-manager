@@ -20,10 +20,12 @@ For now, configuration groups and keys must be entered manually. This is an earl
 - Selective apply and restore
 - Persistent recovery data across client restarts
 - JSON import and export
+- Curated encounter suggestions for Theatre of Blood, Inferno and Fortis Colosseum
+- Per-encounter dismissal preferences with a reset control
 
 ## Limitations
 
-This plugin does **not** enable or disable other plugins. It changes configuration values only. RuneLite does not guarantee that every plugin reacts immediately to configuration changes, and some may need a restart.
+Recommendation suggestions are editorial examples, not measured usage rankings. Automatic detection of installed plugins and Plugin Hub installation links are not implemented yet.\n\nThis plugin does **not** enable or disable other plugins. It changes configuration values only. RuneLite does not guarantee that every plugin reacts immediately to configuration changes, and some may need a restart.
 
 Import files can contain arbitrary configuration values. Only import files you trust, and check exported files before sharing them. They may contain sensitive settings.
 
@@ -44,7 +46,7 @@ A Gradle wrapper has not yet been committed. The RuneLite dependency currently u
 
 The implementation is still under development. Compilation, in-client testing, compatibility checks and Plugin Hub review have not been completed. See the Actions tab for automated build results when available.
 
-Next priorities are configuration discovery, safer preset editing, automated tests and a review of Plugin Hub API restrictions.
+Next priorities are configuration discovery, verified Plugin Hub identifiers, installation detection, a polished sidebar redesign, automated integration tests and a review of Plugin Hub API restrictions.
 
 ## License
 
