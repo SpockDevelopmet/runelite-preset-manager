@@ -400,7 +400,8 @@ public class PresetManagerPlugin extends Plugin {
             imp.addActionListener(e -> importPresets());
             controls.add(imp);
             controls.add(status);
-            controls.add(new JLabel("ENCOUNTER RECOMMENDATIONS"));
+            JPanel encounterControls = new JPanel(new GridLayout(0, 1, 4, 4));
+            encounterControls.add(new JLabel("ENCOUNTER RECOMMENDATIONS"));
             encounterSearch.setToolTipText("Search encounters");
             encounterSearch.putClientProperty("JTextField.placeholderText", "Search bosses and raids");
             encounterSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -408,10 +409,10 @@ public class PresetManagerPlugin extends Plugin {
                 public void removeUpdate(javax.swing.event.DocumentEvent e) { refreshEncounters(); }
                 public void changedUpdate(javax.swing.event.DocumentEvent e) { refreshEncounters(); }
             });
-            controls.add(encounterSearch);
+            encounterControls.add(encounterSearch);
             refreshEncounters();
             encounterPicker.addActionListener(e -> refreshRecommendations());
-            controls.add(encounterPicker);
+            encounterControls.add(encounterPicker);
             JButton createFromEncounter = new JButton("Create preset for this encounter");
             createFromEncounter.addActionListener(e -> {
                 RecommendationCatalog.Encounter encounter =
@@ -436,17 +437,20 @@ public class PresetManagerPlugin extends Plugin {
                     error(ex.getMessage());
                 }
             });
-            controls.add(createFromEncounter);
-            controls.add(new JLabel("Curated suggestions, not popularity rankings"));
-            controls.add(recommendationRows);
+            encounterControls.add(createFromEncounter);
+            encounterControls.add(new JLabel("Curated suggestions, not popularity rankings"));
+            encounterControls.add(recommendationRows);
             JButton resetDismissals = new JButton("Show dismissed suggestions");
             resetDismissals.addActionListener(e -> {
                 dismissedRecommendations.clear();
                 config.unsetConfiguration(GROUP, DISMISSED);
                 refreshRecommendations();
             });
-            controls.add(resetDismissals);
-            add(new JScrollPane(controls), BorderLayout.CENTER);
+            encounterControls.add(resetDismissals);
+            javax.swing.JTabbedPane tabs = new javax.swing.JTabbedPane();
+            tabs.addTab("My Presets", new JScrollPane(controls));
+            tabs.addTab("Boss Library", new JScrollPane(encounterControls));
+            add(tabs, BorderLayout.CENTER);
             refreshRecommendations();
             refresh();
         }
