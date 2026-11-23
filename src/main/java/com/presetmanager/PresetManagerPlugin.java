@@ -471,7 +471,14 @@ public class PresetManagerPlugin extends Plugin {
                     || encounter.category.toLowerCase(java.util.Locale.ROOT).contains(query))
                     encounterPicker.addItem(encounter);
             }
-            if (selected != null) encounterPicker.setSelectedItem(selected);
+            if (selected != null) {
+                for (int i = 0; i < encounterPicker.getItemCount(); i++) {
+                    if (encounterPicker.getItemAt(i) == selected) {
+                        encounterPicker.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
             refreshRecommendations();
         }
         private void refreshRecommendations() {
