@@ -48,7 +48,7 @@ public class PresetManagerPlugin extends Plugin {
     private static final String DISMISSED = "dismissedRecommendations";
     private static final int MAX_PRESETS = 250;
     private static final int MAX_SETTINGS = 300;
-        private final Gson gson = new GsonBuilder().serializeNulls().create();
+    private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final Type presetType = new TypeToken<List<Preset>>() {}.getType();
     private final Type recoveryType = new TypeToken<Map<String, String>>() {}.getType();
     @Inject private ConfigManager config;
@@ -239,12 +239,22 @@ public class PresetManagerPlugin extends Plugin {
         private final JComboBox<Preset> picker = new JComboBox<>();
         private final JLabel status = new JLabel();
         private final JComboBox<RecommendationCatalog.Encounter> encounterPicker = new JComboBox<>();
+        private final JTextField presetSearch = new JTextField();
+        private final JTextField encounterSearch = new JTextField();
         private final JPanel recommendationRows = new JPanel(new GridLayout(0, 1, 3, 3));
         ManagerPanel() {
             super(false);
             setLayout(new BorderLayout(6, 6));
             JPanel controls = new JPanel(new GridLayout(0, 1, 4, 4));
             controls.add(new JLabel("SELECTIVE PRESETS"));
+            presetSearch.setToolTipText("Filter your saved presets by name or tag");
+            presetSearch.putClientProperty("JTextField.placeholderText", "Search my presets");
+            presetSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { refresh(); }
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { refresh(); }
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { refresh(); }
+            });
+            controls.add(presetSearch);
             controls.add(picker);
             JButton create = new JButton("Create preset");
             create.addActionListener(e -> {
@@ -391,8 +401,15 @@ public class PresetManagerPlugin extends Plugin {
             controls.add(imp);
             controls.add(status);
             controls.add(new JLabel("ENCOUNTER RECOMMENDATIONS"));
-            for (RecommendationCatalog.Encounter encounter : RecommendationCatalog.encounters())
-                encounterPicker.addItem(encounter);
+            encounterSearch.setToolTipText("Search encounters");
+            encounterSearch.putClientProperty("JTextField.placeholderText", "Search bosses and raids");
+            encounterSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { refreshEncounters(); }
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { refreshEncounters(); }
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { refreshEncounters(); }
+            });
+            controls.add(encounterSearch);
+            refreshEncounters();
             encounterPicker.addActionListener(e -> refreshRecommendations());
             controls.add(encounterPicker);
             JButton createFromEncounter = new JButton("Create preset for this encounter");
@@ -436,9 +453,26 @@ public class PresetManagerPlugin extends Plugin {
         private void refresh() {
             Preset selected = (Preset) picker.getSelectedItem();
             picker.removeAllItems();
-            for (Preset p : presets) picker.addItem(p);
+            String query = presetSearch.getText().trim().toLowerCase(java.util.Locale.ROOT);
+            for (Preset p : presets) {
+                if (p.name.toLowerCase(java.util.Locale.ROOT).contains(query)
+                    || p.tag.toLowerCase(java.util.Locale.ROOT).contains(query)) picker.addItem(p);
+            }
             if (selected != null && presets.contains(selected)) picker.setSelectedItem(selected);
             refreshStatus();
+        }
+        private void refreshEncounters() {
+            RecommendationCatalog.Encounter selected =
+                (RecommendationCatalog.Encounter) encounterPicker.getSelectedItem();
+            String query = encounterSearch.getText().trim().toLowerCase(java.util.Locale.ROOT);
+            encounterPicker.removeAllItems();
+            for (RecommendationCatalog.Encounter encounter : RecommendationCatalog.encounters()) {
+                if (encounter.name.toLowerCase(java.util.Locale.ROOT).contains(query)
+                    || encounter.category.toLowerCase(java.util.Locale.ROOT).contains(query))
+                    encounterPicker.addItem(encounter);
+            }
+            if (selected != null) encounterPicker.setSelectedItem(selected);
+            refreshRecommendations();
         }
         private void refreshRecommendations() {
             recommendationRows.removeAll();
