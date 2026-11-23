@@ -1,6 +1,7 @@
 package com.presetmanager;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -46,7 +47,7 @@ public class PresetManagerPlugin extends Plugin {
     private static final String ACTIVE = "active";
     private static final int MAX_PRESETS = 250;
     private static final int MAX_SETTINGS = 300;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final Type presetType = new TypeToken<List<Preset>>() {}.getType();
     private final Type recoveryType = new TypeToken<Map<String, String>>() {}.getType();
     @Inject private ConfigManager config;
