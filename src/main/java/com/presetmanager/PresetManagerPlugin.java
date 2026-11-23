@@ -253,7 +253,6 @@ public class PresetManagerPlugin extends Plugin {
             super(false);
             setLayout(new BorderLayout(6, 6));
             JPanel controls = new JPanel(new GridLayout(0, 1, 4, 4));
-            SidebarStyle.apply(this);
             controls.add(new JLabel("SELECTIVE PRESETS"));
             presetSearch.setToolTipText("Filter your saved presets by name or tag");
             presetSearch.putClientProperty("JTextField.placeholderText", "Search my presets");
@@ -462,6 +461,7 @@ public class PresetManagerPlugin extends Plugin {
             tabs.addTab("Boss Library", new JScrollPane(encounterControls));
             tabs.setFocusable(false);
             add(tabs, BorderLayout.CENTER);
+            SidebarStyle.apply(this);
             refreshRecommendations();
             refresh();
         }
