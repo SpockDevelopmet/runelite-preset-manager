@@ -16,7 +16,7 @@ For now, configuration groups and keys must be entered manually. This is an earl
 
 - Sidebar panel for creating, selecting and deleting presets
 - Custom names and tags, with rename and duplicate controls
-- Search personal presets by name or tag, and filter the encounter library
+- Separate My Presets and Boss Library tabs, with search in each
 - Create a personal preset directly from a boss or raid entry
 - Capture current configuration value for an existing entry
 - Selective apply and restore
@@ -30,6 +30,10 @@ For now, configuration groups and keys must be entered manually. This is an earl
 The encounter browser currently provides curated recommendations for Theatre of Blood, Chambers of Xeric, Tombs of Amascut, Inferno, Fortis Colosseum, Doom of Mokhaiotl, Zulrah, Vorkath, The Gauntlet and The Nightmare. It does not restrict which presets you can create. Personal presets can be named after a boss, skilling method, minigame, or anything else.
 
 Built-in recommendations are not automatically installed, enabled, or included in your personal presets. The long-term plan is to make the encounter library a convenient starting point while keeping personal presets fully editable.
+
+## Artwork
+
+The navigation icon is a small, original, hand-authored 16-pixel raster drawn from a fixed palette in `PresetIcon.java`. It deliberately avoids emoji, stock symbols and generated illustrations. Its appearance still needs review inside RuneLite at the actual sidebar scale.
 
 ## Limitations
 
