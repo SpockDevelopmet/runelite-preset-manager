@@ -1,4 +1,7 @@
-plugins { id 'java' }
+plugins {
+    id 'java'
+    id 'application'
+}
 repositories {
     mavenLocal()
     maven { url = 'https://repo.runelite.net'; content { includeGroupByRegex('net\\.runelite.*') } }
@@ -9,8 +12,20 @@ dependencies {
     compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:1.7.36'
     testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
 }
 group = 'com.presetmanager'
 version = '1.0.0'
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release.set(17) }
+
+// Development-only launcher: run with 'gradle run' to load this plugin in RuneLite.
+application {
+    mainClass = 'com.presetmanager.PresetManagerDevelopmentLauncher'
+}
+sourceSets {
+    main { resources { srcDir '.'; include 'runelite-plugin.properties' } }
+}
+configurations {
+    runtimeClasspath.extendsFrom(testRuntimeClasspath)
+}
