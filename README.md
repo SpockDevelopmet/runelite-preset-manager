@@ -16,6 +16,8 @@ For now, configuration groups and keys must be entered manually. This is an earl
 
 - Sidebar panel for creating, selecting and deleting presets
 - Custom names and tags, with rename and duplicate controls
+- Search personal presets by name or tag, and filter the encounter library
+- Create a personal preset directly from a boss or raid entry
 - Capture current configuration value for an existing entry
 - Selective apply and restore
 - Persistent recovery data across client restarts
@@ -25,7 +27,7 @@ For now, configuration groups and keys must be entered manually. This is an earl
 
 ## Built-in encounters and personal presets
 
-The encounter browser currently provides curated recommendations for a small number of activities. It does not restrict which presets you can create. Personal presets can be named after a boss, skilling method, minigame, or anything else.
+The encounter browser currently provides curated recommendations for Theatre of Blood, Chambers of Xeric, Tombs of Amascut, Inferno, Fortis Colosseum, Doom of Mokhaiotl, Zulrah, Vorkath, The Gauntlet and The Nightmare. It does not restrict which presets you can create. Personal presets can be named after a boss, skilling method, minigame, or anything else.
 
 Built-in recommendations are not automatically installed, enabled, or included in your personal presets. The long-term plan is to make the encounter library a convenient starting point while keeping personal presets fully editable.
 
