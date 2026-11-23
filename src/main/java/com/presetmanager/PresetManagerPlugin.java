@@ -48,6 +48,7 @@ public class PresetManagerPlugin extends Plugin {
     private static final String DISMISSED = "dismissedRecommendations";
     private static final int MAX_PRESETS = 250;
     private static final int MAX_SETTINGS = 300;
+    private static final int MAX_NAME_LENGTH = 100;
     private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final Type presetType = new TypeToken<List<Preset>>() {}.getType();
     private final Type recoveryType = new TypeToken<Map<String, String>>() {}.getType();
@@ -258,9 +259,43 @@ public class PresetManagerPlugin extends Plugin {
                 if (presets.size() >= MAX_PRESETS) { error("Preset limit reached"); return; }
                 Preset p = new Preset(name.getText().trim(), tag.getText().trim());
                 try { validatePreset(p); presets.add(p); persist(); refresh(); picker.setSelectedItem(p); }
-                catch (RuntimeException ex) { error(ex.getMessage()); }
+                catch (RuntimeException ex) { presets.remove(p); error(ex.getMessage()); }
             });
             controls.add(create);
+            JButton rename = new JButton("Rename / change tag");
+            rename.addActionListener(e -> {
+                Preset p = (Preset) picker.getSelectedItem();
+                if (p == null) return;
+                JTextField name = new JTextField(p.name);
+                JTextField tag = new JTextField(p.tag);
+                JPanel form = new JPanel(new GridLayout(0, 1));
+                form.add(new JLabel("Name")); form.add(name);
+                form.add(new JLabel("Tag")); form.add(tag);
+                if (JOptionPane.showConfirmDialog(this, form, "Edit preset",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) return;
+                String oldName = p.name, oldTag = p.tag;
+                p.name = name.getText().trim();
+                p.tag = tag.getText().trim();
+                try { validatePreset(p); persist(); refresh(); picker.setSelectedItem(p); }
+                catch (RuntimeException ex) {
+                    p.name = oldName; p.tag = oldTag; error(ex.getMessage());
+                }
+            });
+            controls.add(rename);
+            JButton duplicate = new JButton("Duplicate selected preset");
+            duplicate.addActionListener(e -> {
+                Preset original = (Preset) picker.getSelectedItem();
+                if (original == null) return;
+                if (presets.size() >= MAX_PRESETS) { error("Preset limit reached"); return; }
+                String name = JOptionPane.showInputDialog(this, "Name for copy", original.name + " copy");
+                if (name == null) return;
+                Preset copy = new Preset(name.trim(), original.tag);
+                for (Setting setting : original.settings)
+                    copy.settings.add(new Setting(setting.group, setting.key, setting.value));
+                try { validatePreset(copy); presets.add(copy); persist(); refresh(); picker.setSelectedItem(copy); }
+                catch (RuntimeException ex) { presets.remove(copy); error(ex.getMessage()); }
+            });
+            controls.add(duplicate);
             JButton add = new JButton("Add configuration setting");
             add.addActionListener(e -> {
                 Preset p = (Preset) picker.getSelectedItem();
@@ -304,7 +339,8 @@ public class PresetManagerPlugin extends Plugin {
                     "Remove setting", JOptionPane.PLAIN_MESSAGE, null, p.settings.toArray(), null);
                 if (selected != null && JOptionPane.showConfirmDialog(this, "Remove setting?",
                     "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    p.settings.remove(selected); persist();
+                    p.settings.remove(selected);
+                    try { persist(); } catch (RuntimeException ex) { p.settings.add((Setting) selected); error(ex.getMessage()); }
                 }
             });
             controls.add(removeSetting);
@@ -343,7 +379,8 @@ public class PresetManagerPlugin extends Plugin {
                 Preset p = (Preset) picker.getSelectedItem();
                 if (p != null && JOptionPane.showConfirmDialog(this, "Delete " + p.name + "?",
                     "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    presets.remove(p); persist(); refresh();
+                    presets.remove(p);
+                    try { persist(); refresh(); } catch (RuntimeException ex) { presets.add(p); error(ex.getMessage()); }
                 }
             });
             controls.add(delete);
