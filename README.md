@@ -63,3 +63,14 @@ Release blockers: passing CI, verified RuneLite API compatibility, configuration
 ## License
 
 No license has been selected yet. All rights reserved until a license is added.
+
+
+## Try it in RuneLite (development build)
+
+See [FIRST_INGAME_TEST.md](FIRST_INGAME_TEST.md) for the Windows setup and a safe test plan.
+With JDK 17 and Gradle 8.14 installed, run `gradle clean test build`, followed by
+`gradle runDev`. The development launcher lives in the test source set and is not
+included in the plugin JAR. The launcher and build have not yet been verified in CI.
+
+GitHub Actions also supports manual runs and uploads the JAR on success. Do not
+submit or distribute an untested build as a public Plugin Hub release.
