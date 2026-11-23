@@ -19,3 +19,18 @@ jobs:
           gradle-version: '8.14'
       - name: Compile and test
         run: gradle --no-daemon clean test build
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: build/reports/tests/
+          if-no-files-found: ignore
+      - name: Upload plugin jar
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preset-manager-jar
+          path: build/libs/*.jar
+          if-no-files-found: error
