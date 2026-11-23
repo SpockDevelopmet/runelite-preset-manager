@@ -109,10 +109,15 @@ public class PresetManagerPlugin extends Plugin {
     private static String joined(String group, String key) { return group + "\u0000" + key; }
 
     private static String[] splitKey(String value) {
-        String[] parts = value.split("\u0000", 2);
-        if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()
-            || GROUP.equals(parts[0])) throw new IllegalArgumentException("Invalid recovery key");
-        return parts;
+        if (value == null) throw new IllegalArgumentException("Invalid recovery key");
+        int separator = value.indexOf('\u0000');
+        if (separator <= 0 || separator == value.length() - 1
+            || value.indexOf('\u0000', separator + 1) >= 0)
+            throw new IllegalArgumentException("Invalid recovery key");
+        String group = value.substring(0, separator);
+        String key = value.substring(separator + 1);
+        if (GROUP.equals(group)) throw new IllegalArgumentException("Protected recovery key");
+        return new String[] { group, key };
     }
 
     private static void validatePreset(Preset preset) {
@@ -170,6 +175,8 @@ public class PresetManagerPlugin extends Plugin {
     private void restore() {
         if (recoveryCorrupt) throw new IllegalStateException("Recovery snapshot is damaged; refusing to discard it");
         if (recovery == null) return;
+        // Validate the complete snapshot before touching any configuration values.
+        for (String key : recovery.keySet()) splitKey(key);
         for (Map.Entry<String, String> entry : recovery.entrySet()) {
             String[] parts = splitKey(entry.getKey());
             write(parts[0], parts[1], entry.getValue());
