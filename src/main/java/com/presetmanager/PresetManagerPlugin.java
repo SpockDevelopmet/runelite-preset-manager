@@ -45,6 +45,7 @@ public class PresetManagerPlugin extends Plugin {
     private static final String PRESETS = "presets";
     private static final String RECOVERY = "recovery";
     private static final String ACTIVE = "active";
+    private static final String DISMISSED = "dismissedRecommendations";
     private static final int MAX_PRESETS = 250;
     private static final int MAX_SETTINGS = 300;
     private final Gson gson = new GsonBuilder().serializeNulls().create();
@@ -57,10 +58,12 @@ public class PresetManagerPlugin extends Plugin {
     private String active;
     private boolean recoveryCorrupt;
     private boolean presetsCorrupt;
+    private Set<String> dismissedRecommendations = new HashSet<>();
     private NavigationButton navigation;
     private ManagerPanel panel;
 
     @Override protected void startUp() {
+        dismissedRecommendations = RecommendationCatalog.parseDismissals(config.getConfiguration(GROUP, DISMISSED));
         String saved = config.getConfiguration(GROUP, PRESETS);
         if (saved != null) {
             try {
@@ -235,6 +238,8 @@ public class PresetManagerPlugin extends Plugin {
     private final class ManagerPanel extends PluginPanel {
         private final JComboBox<Preset> picker = new JComboBox<>();
         private final JLabel status = new JLabel();
+        private final JComboBox<RecommendationCatalog.Encounter> encounterPicker = new JComboBox<>();
+        private final JPanel recommendationRows = new JPanel(new GridLayout(0, 1, 3, 3));
         ManagerPanel() {
             super(false);
             setLayout(new BorderLayout(6, 6));
@@ -349,7 +354,22 @@ public class PresetManagerPlugin extends Plugin {
             imp.addActionListener(e -> importPresets());
             controls.add(imp);
             controls.add(status);
+            controls.add(new JLabel("ENCOUNTER RECOMMENDATIONS"));
+            for (RecommendationCatalog.Encounter encounter : RecommendationCatalog.encounters())
+                encounterPicker.addItem(encounter);
+            encounterPicker.addActionListener(e -> refreshRecommendations());
+            controls.add(encounterPicker);
+            controls.add(new JLabel("Curated suggestions, not popularity rankings"));
+            controls.add(recommendationRows);
+            JButton resetDismissals = new JButton("Show dismissed suggestions");
+            resetDismissals.addActionListener(e -> {
+                dismissedRecommendations.clear();
+                config.unsetConfiguration(GROUP, DISMISSED);
+                refreshRecommendations();
+            });
+            controls.add(resetDismissals);
             add(new JScrollPane(controls), BorderLayout.CENTER);
+            refreshRecommendations();
             refresh();
         }
         private void refresh() {
@@ -358,6 +378,35 @@ public class PresetManagerPlugin extends Plugin {
             for (Preset p : presets) picker.addItem(p);
             if (selected != null && presets.contains(selected)) picker.setSelectedItem(selected);
             refreshStatus();
+        }
+        private void refreshRecommendations() {
+            recommendationRows.removeAll();
+            RecommendationCatalog.Encounter encounter =
+                (RecommendationCatalog.Encounter) encounterPicker.getSelectedItem();
+            if (encounter != null) {
+                for (RecommendationCatalog.Recommendation recommendation :
+                    RecommendationCatalog.visible(encounter, dismissedRecommendations)) {
+                    JPanel row = new JPanel(new BorderLayout(3, 3));
+                    JLabel description = new JLabel("<html><b>" + recommendation.name
+                        + "</b><br>" + recommendation.description + "</html>");
+                    row.add(description, BorderLayout.CENTER);
+                    JButton dismiss = new JButton("Not for me");
+                    dismiss.setToolTipText("Hide this suggestion for this encounter");
+                    dismiss.addActionListener(e -> {
+                        dismissedRecommendations.add(RecommendationCatalog.key(
+                            encounter.id, recommendation.id));
+                        config.setConfiguration(GROUP, DISMISSED,
+                            RecommendationCatalog.serializeDismissals(dismissedRecommendations));
+                        refreshRecommendations();
+                    });
+                    row.add(dismiss, BorderLayout.SOUTH);
+                    recommendationRows.add(row);
+                }
+            }
+            if (recommendationRows.getComponentCount() == 0)
+                recommendationRows.add(new JLabel("No suggestions to show"));
+            recommendationRows.revalidate();
+            recommendationRows.repaint();
         }
         private void refreshStatus() {
             status.setText(presetsCorrupt ? "Saved presets damaged - edits blocked" : recoveryCorrupt ? "Recovery damaged - activation blocked" : recovery == null ? "No preset active" : "Active: " + active);
