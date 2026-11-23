@@ -381,6 +381,7 @@ public class PresetManagerPlugin extends Plugin {
             });
             controls.add(edit);
             JButton activateButton = new JButton("Activate selected preset");
+            activateButton.setToolTipText("Saves a recovery snapshot before applying only this preset's settings");
             activateButton.addActionListener(e -> {
                 Preset p = (Preset) picker.getSelectedItem();
                 if (p == null) return;
@@ -388,6 +389,7 @@ public class PresetManagerPlugin extends Plugin {
             });
             controls.add(activateButton);
             JButton restoreButton = new JButton("Restore previous settings");
+            restoreButton.setToolTipText("Restores values saved before preset activation");
             restoreButton.addActionListener(e -> {
                 try { restore(); refreshStatus(); } catch (RuntimeException ex) { error(ex.getMessage()); }
             });
@@ -409,6 +411,7 @@ public class PresetManagerPlugin extends Plugin {
             imp.addActionListener(e -> importPresets());
             controls.add(imp);
             controls.add(status);
+            controls.add(new JLabel("Only selected configuration keys are changed."));
             JPanel encounterControls = new JPanel(new GridLayout(0, 1, 4, 4));
             encounterControls.add(new JLabel("ENCOUNTER RECOMMENDATIONS"));
             encounterSearch.setToolTipText("Search encounters");
@@ -522,7 +525,7 @@ public class PresetManagerPlugin extends Plugin {
                             break;
                         }
                     }
-                    JLabel detection = new JLabel(available ? "Available in client" : "Not detected in client");
+                    JLabel detection = new JLabel(available ? "Loaded in client" : "Not detected among loaded plugins");
                     detection.setForeground(available ? new java.awt.Color(113, 190, 150)
                         : new java.awt.Color(209, 171, 108));
                     row.add(detection, BorderLayout.NORTH);
