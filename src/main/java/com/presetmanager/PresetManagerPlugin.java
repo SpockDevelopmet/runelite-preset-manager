@@ -458,7 +458,14 @@ public class PresetManagerPlugin extends Plugin {
                 if (p.name.toLowerCase(java.util.Locale.ROOT).contains(query)
                     || p.tag.toLowerCase(java.util.Locale.ROOT).contains(query)) picker.addItem(p);
             }
-            if (selected != null && presets.contains(selected)) picker.setSelectedItem(selected);
+            if (selected != null) {
+                for (int i = 0; i < picker.getItemCount(); i++) {
+                    if (picker.getItemAt(i) == selected) {
+                        picker.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
             refreshStatus();
         }
         private void refreshEncounters() {
