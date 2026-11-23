@@ -23,6 +23,27 @@ public class RecommendationCatalogTest {
             RecommendationCatalog.serializeDismissals(dismissed)));
     }
 
+    @Test public void encounterIdsAreUnique() {
+        Set<String> ids = new HashSet<>();
+        for (RecommendationCatalog.Encounter encounter : RecommendationCatalog.encounters()) {
+            assertTrue("Duplicate encounter: " + encounter.id, ids.add(encounter.id));
+            assertFalse(encounter.recommendations.isEmpty());
+            Set<String> recommendationIds = new HashSet<>();
+            for (RecommendationCatalog.Recommendation recommendation : encounter.recommendations) {
+                assertTrue("Duplicate suggestion: " + recommendation.id,
+                    recommendationIds.add(recommendation.id));
+            }
+        }
+    }
+
+    @Test public void dismissingOneEncounterDoesNotHideAnother() {
+        Set<String> dismissed = new HashSet<>();
+        dismissed.add(RecommendationCatalog.key("theatre-of-blood", "ground-markers"));
+        RecommendationCatalog.Encounter chambers = RecommendationCatalog.encounters().stream()
+            .filter(e -> "chambers-of-xeric".equals(e.id)).findFirst().get();
+        assertEquals(2, RecommendationCatalog.visible(chambers, dismissed).size());
+    }
+
     @Test public void invalidDismissalEntriesAreIgnored() {
         assertEquals(1, RecommendationCatalog.parseDismissals(
             "theatre-of-blood:tile-indicators\n../invalid\n").size());
