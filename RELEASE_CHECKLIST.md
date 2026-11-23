@@ -25,7 +25,8 @@ This checklist tracks evidence, not intended behavior.
 ## Recommendation UX
 
 - [ ] Verify recommendation names and plugin identifiers against RuneLite/Plugin Hub.
-- [ ] Check actual installed-plugin detection (not implemented).
+- [x] Show whether a recommended plugin appears in the client’s loaded plugin list (implemented; not verified in client).
+- [ ] Distinguish installed, disabled and missing Plugin Hub plugins reliably.
 - [ ] Confirm dismissed suggestions remain hidden after restart.
 - [ ] Confirm dismissals are scoped to the chosen encounter.
 - [ ] Verify missing-plugin installation guidance without automatic installation.
@@ -33,7 +34,7 @@ This checklist tracks evidence, not intended behavior.
 ## Visual QA
 
 - [ ] Review icon at the actual 16px RuneLite sidebar scale.
-- [ ] Review the complete panel at standard and high-DPI scaling.
+- [ ] Review the tabbed My Presets / Boss Library panel at standard and high-DPI scaling.
 - [ ] Check empty, long-name, error, active and restored states.
 - [ ] Verify keyboard focus and text clipping.
 
