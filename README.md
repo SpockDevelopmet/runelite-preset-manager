@@ -37,7 +37,7 @@ The navigation icon is a small, original, hand-authored 16-pixel raster drawn fr
 
 ## Limitations
 
-Recommendation suggestions are editorial examples, not measured usage rankings. Automatic detection of installed plugins and Plugin Hub installation links are not implemented yet.\n\nThis plugin does **not** enable or disable other plugins. It changes configuration values only. RuneLite does not guarantee that every plugin reacts immediately to configuration changes, and some may need a restart.
+Recommendation suggestions are editorial examples, not measured usage rankings. The Boss Library now checks whether matching plugins are present among the plugins loaded by the RuneLite client. This is **not** a reliable installed-versus-not-installed check: a plugin absent from the loaded list may still be installed but disabled. Verified Plugin Hub identifiers, installation links and full installation-state detection are not implemented yet.\n\nThis plugin does **not** enable or disable other plugins. It changes configuration values only. RuneLite does not guarantee that every plugin reacts immediately to configuration changes, and some may need a restart.
 
 Import files can contain arbitrary configuration values. Only import files you trust, and check exported files before sharing them. They may contain sensitive settings.
 
@@ -58,7 +58,7 @@ A Gradle wrapper has not yet been committed. The RuneLite dependency currently u
 
 The implementation is still under development. Compilation, in-client testing, compatibility checks and Plugin Hub review have not been completed. See the Actions tab for automated build results when available.
 
-Release blockers: passing CI, verified RuneLite API compatibility, configuration discovery, verified Plugin Hub identifiers, installation detection, a polished sidebar redesign, automated integration tests, and Plugin Hub policy review.
+Release blockers: passing CI, verified RuneLite API compatibility, configuration discovery, verified Plugin Hub identifiers, installation detection, further sidebar usability and accessibility review, automated integration tests, and Plugin Hub policy review.
 
 ## License
 
