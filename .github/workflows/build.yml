@@ -19,7 +19,7 @@ jobs:
         with:
           gradle-version: '8.14'
       - name: Compile and test
-        run: gradle --no-daemon clean test build
+        run: gradle --no-daemon --stacktrace clean test build
 
       - name: Upload test reports on failure
         if: failure()
