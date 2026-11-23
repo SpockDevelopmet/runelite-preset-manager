@@ -206,8 +206,14 @@ public class PresetManagerPlugin extends Plugin {
                 "Replace " + presets.size() + " presets with " + incoming.size()
                 + " imported presets? Only import trusted files. Settings will not be applied.",
                 "Import", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+            List<Preset> previous = presets;
             presets = incoming;
-            persist();
+            try {
+                persist();
+            } catch (RuntimeException ex) {
+                presets = previous;
+                throw ex;
+            }
             panel.refresh();
         } catch (Exception e) { panel.error(e.getMessage()); }
     }
@@ -328,8 +334,10 @@ public class PresetManagerPlugin extends Plugin {
                 if (current == null && JOptionPane.showConfirmDialog(this,
                     "This setting is currently unset. Save an unset value?",
                     "Capture", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+                String previous = setting.value;
                 setting.value = current;
-                persist();
+                try { persist(); }
+                catch (RuntimeException ex) { setting.value = previous; error(ex.getMessage()); }
             });
             controls.add(capture);
             JButton removeSetting = new JButton("Remove saved setting");
