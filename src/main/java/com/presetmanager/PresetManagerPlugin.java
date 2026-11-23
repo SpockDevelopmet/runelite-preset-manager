@@ -55,6 +55,7 @@ public class PresetManagerPlugin extends Plugin {
     private Map<String, String> recovery;
     private String active;
     private boolean recoveryCorrupt;
+    private boolean presetsCorrupt;
     private NavigationButton navigation;
     private ManagerPanel panel;
 
@@ -68,6 +69,7 @@ public class PresetManagerPlugin extends Plugin {
             } catch (RuntimeException ignored) {
                 // Keep corrupt storage intact for manual recovery; never overwrite it automatically.
                 presets = new ArrayList<>();
+                presetsCorrupt = true;
             }
         }
         String pending = config.getConfiguration(GROUP, RECOVERY);
@@ -138,11 +140,15 @@ public class PresetManagerPlugin extends Plugin {
         for (Preset p : list) validatePreset(p);
     }
 
-    private void persist() { config.setConfiguration(GROUP, PRESETS, gson.toJson(presets)); }
+    private void persist() {
+        if (presetsCorrupt) throw new IllegalStateException("Saved presets are damaged; refusing to overwrite them");
+        config.setConfiguration(GROUP, PRESETS, gson.toJson(presets));
+    }
 
     private void activate(Preset preset) {
         validatePreset(preset);
         if (preset.settings.isEmpty()) throw new IllegalArgumentException("Preset has no settings");
+        if (presetsCorrupt) throw new IllegalStateException("Saved presets are damaged; activation is blocked");
         if (recoveryCorrupt) throw new IllegalStateException("Recovery snapshot is damaged. Back up your RuneLite configuration before changing anything.");
         if (recovery != null) throw new IllegalStateException("Restore previous settings first");
         Map<String, String> snapshot = new LinkedHashMap<>();
@@ -199,6 +205,7 @@ public class PresetManagerPlugin extends Plugin {
             List<Preset> incoming = gson.fromJson(
                 new String(Files.readAllBytes(path), StandardCharsets.UTF_8), presetType);
             validateList(incoming);
+            if (presetsCorrupt) throw new IllegalStateException("Saved presets are damaged; back up your configuration before importing");
             if (JOptionPane.showConfirmDialog(panel,
                 "Replace " + presets.size() + " presets with " + incoming.size()
                 + " imported presets? Only import trusted files. Settings will not be applied.",
@@ -295,6 +302,24 @@ public class PresetManagerPlugin extends Plugin {
                 }
             });
             controls.add(removeSetting);
+            JButton edit = new JButton("Edit saved setting");
+            edit.addActionListener(e -> {
+                Preset p = (Preset) picker.getSelectedItem();
+                if (p == null || p.settings.isEmpty()) return;
+                Object selected = JOptionPane.showInputDialog(this, "Choose a setting",
+                    "Edit setting", JOptionPane.PLAIN_MESSAGE, null, p.settings.toArray(), null);
+                if (!(selected instanceof Setting)) return;
+                Setting original = (Setting) selected;
+                JTextField value = new JTextField(original.value == null ? "" : original.value);
+                int choice = JOptionPane.showConfirmDialog(this, value,
+                    "New value (leave blank for empty string)", JOptionPane.OK_CANCEL_OPTION);
+                if (choice != JOptionPane.OK_OPTION) return;
+                String previous = original.value;
+                original.value = value.getText();
+                try { validatePreset(p); persist(); }
+                catch (RuntimeException ex) { original.value = previous; error(ex.getMessage()); }
+            });
+            controls.add(edit);
             JButton activateButton = new JButton("Activate selected preset");
             activateButton.addActionListener(e -> {
                 Preset p = (Preset) picker.getSelectedItem();
@@ -334,7 +359,7 @@ public class PresetManagerPlugin extends Plugin {
             refreshStatus();
         }
         private void refreshStatus() {
-            status.setText(recoveryCorrupt ? "Recovery damaged - activation blocked" : recovery == null ? "No preset active" : "Active: " + active);
+            status.setText(presetsCorrupt ? "Saved presets damaged - edits blocked" : recoveryCorrupt ? "Recovery damaged - activation blocked" : recovery == null ? "No preset active" : "Active: " + active);
         }
         private void error(String message) {
             JOptionPane.showMessageDialog(this, message, "Preset Manager", JOptionPane.ERROR_MESSAGE);
