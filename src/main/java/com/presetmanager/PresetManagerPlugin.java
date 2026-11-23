@@ -92,15 +92,7 @@ public class PresetManagerPlugin extends Plugin {
         }
         SwingUtilities.invokeLater(() -> {
             panel = new ManagerPanel();
-            BufferedImage icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-            java.awt.Graphics2D g = icon.createGraphics();
-            g.setColor(new java.awt.Color(89, 164, 133));
-            g.fillRoundRect(1, 1, 14, 14, 4, 4);
-            g.setColor(java.awt.Color.WHITE);
-            g.drawLine(4, 5, 12, 5);
-            g.drawLine(4, 8, 12, 8);
-            g.drawLine(4, 11, 10, 11);
-            g.dispose();
+            BufferedImage icon = PresetIcon.create();
             navigation = NavigationButton.builder().tooltip("Preset Manager").icon(icon)
                 .priority(7).panel(panel).build();
             toolbar.addNavigation(navigation);
