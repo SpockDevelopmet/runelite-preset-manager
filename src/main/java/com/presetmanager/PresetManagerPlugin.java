@@ -48,8 +48,7 @@ public class PresetManagerPlugin extends Plugin {
     private static final String DISMISSED = "dismissedRecommendations";
     private static final int MAX_PRESETS = 250;
     private static final int MAX_SETTINGS = 300;
-    private static final int MAX_NAME_LENGTH = 100;
-    private final Gson gson = new GsonBuilder().serializeNulls().create();
+        private final Gson gson = new GsonBuilder().serializeNulls().create();
     private final Type presetType = new TypeToken<List<Preset>>() {}.getType();
     private final Type recoveryType = new TypeToken<Map<String, String>>() {}.getType();
     @Inject private ConfigManager config;
@@ -396,6 +395,31 @@ public class PresetManagerPlugin extends Plugin {
                 encounterPicker.addItem(encounter);
             encounterPicker.addActionListener(e -> refreshRecommendations());
             controls.add(encounterPicker);
+            JButton createFromEncounter = new JButton("Create preset for this encounter");
+            createFromEncounter.addActionListener(e -> {
+                RecommendationCatalog.Encounter encounter =
+                    (RecommendationCatalog.Encounter) encounterPicker.getSelectedItem();
+                if (encounter == null) return;
+                if (presets.size() >= MAX_PRESETS) { error("Preset limit reached"); return; }
+                String name = JOptionPane.showInputDialog(this, "Preset name", encounter.name);
+                if (name == null) return;
+                Preset preset = new Preset(name.trim(), encounter.category);
+                try {
+                    validatePreset(preset);
+                    presets.add(preset);
+                    persist();
+                    refresh();
+                    picker.setSelectedItem(preset);
+                    JOptionPane.showMessageDialog(this,
+                        "Preset created. Add only the settings you want this preset to control. "
+                        + "Suggestions are not automatically installed or applied.",
+                        "Preset created", JOptionPane.INFORMATION_MESSAGE);
+                } catch (RuntimeException ex) {
+                    presets.remove(preset);
+                    error(ex.getMessage());
+                }
+            });
+            controls.add(createFromEncounter);
             controls.add(new JLabel("Curated suggestions, not popularity rankings"));
             controls.add(recommendationRows);
             JButton resetDismissals = new JButton("Show dismissed suggestions");
