@@ -11,14 +11,13 @@ dependencies {
     compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'junit:junit:4.13.2'
-    testRuntimeOnly 'org.slf4j:slf4j-simple:1.7.36'
     testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
 }
 group = 'com.presetmanager'
 version = '1.0.0'
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release.set(17) }
 
-// Development-only launcher: run with 'gradle run' to load this plugin in RuneLite.
+// Development-only launcher: run with 'gradle runDev' to load this plugin in RuneLite.
 sourceSets {
     main { resources { srcDir '.'; include 'runelite-plugin.properties' } }
 }
@@ -27,5 +26,6 @@ tasks.register('runDev', JavaExec) {
     description = 'Launch RuneLite with Preset Manager loaded for development'
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'com.presetmanager.PresetManagerDevelopmentLauncher'
+    enableAssertions = true
     workingDir = project.projectDir
 }
